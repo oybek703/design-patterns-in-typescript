@@ -1,9 +1,9 @@
-let num1 = 10_000
+const skills: [number, string] = [1, 'Dev']
 
-console.log(num1)
+const skillId = skills[0]
+const skillName = skills[1]
+skills.push('test')
+// const something = skills[2]
+console.log(skills)
 
-
-const skills = ['Devops', 'Dev', 'Testing']
-
-
-console.log(skills.map(skill => skill + 1))
+const elements:[number, string, ...boolean[]] = [1, 'Dev' , true, false]
