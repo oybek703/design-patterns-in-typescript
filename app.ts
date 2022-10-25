@@ -1,9 +1,12 @@
-const skills: [number, string] = [1, 'Dev']
+const skill: readonly [number, string] = [1, 'Dev']
 
-const skillId = skills[0]
-const skillName = skills[1]
-skills.push('test')
-// const something = skills[2]
-console.log(skills)
+skill.push('test')
 
-const elements:[number, string, ...boolean[]] = [1, 'Dev' , true, false]
+const skills: readonly string[] = ['Dev', 'DevOps']
+const skills1: Array<string> = ['Dev', 'DevOps']
+const skills2: ReadonlyArray<string> = ['Dev', 'DevOps']
+
+skills[1] = 'test'
+
+skills1[0] = 'asdasd'
+skills2[0] = 'asdasd'
