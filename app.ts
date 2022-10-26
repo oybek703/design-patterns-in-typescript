@@ -1,34 +1,18 @@
-enum PaymentStatus {
-    Hold,
-    Processed,
-    Reversed
-}
+class User {
+    skills: string[]
 
-class Payment {
-    status: PaymentStatus = PaymentStatus.Hold
-    id: string
-    createdAt: Date = new Date()
-    updatedAt: Date
-
-    constructor(id: string) {
-        this.id = id
-    }
-
-    unHoldPayment() {
-        if (this.status !== PaymentStatus.Processed) {
-            this.status = PaymentStatus.Reversed
-            this.updatedAt = new Date()
+    addSkill(skills: string[]): void
+    addSkill(skills: string): void
+    addSkill(skills: string[] | string): void {
+        if (typeof skills === 'string') {
+            this.skills.push(skills)
         } else {
-            throw new Error('Payment is already processed!')
+            skills.forEach(skill => this.skills.push(skill))
         }
     }
-
-    getLeftLifeTime(): number {
-        return new Date().getTime() - this.createdAt.getTime()
-    }
 }
 
-const p1 = new Payment('1')
-p1.unHoldPayment()
-console.log(p1)
-console.log(p1.getLeftLifeTime())
+const user = new User()
+user.addSkill('testing')
+user.addSkill('devops')
+user.addSkill(['s1', 's2'])
