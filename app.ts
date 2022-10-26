@@ -1,21 +1,34 @@
-class User {
-    name: string
-    age: number
+enum PaymentStatus {
+    Hold,
+    Processed,
+    Reversed
+}
 
-    constructor()
-    constructor(name: string)
-    constructor(age: number)
-    constructor(nameOrAge?: string | number, age?: number) {
-        if (typeof nameOrAge === 'string') {
-            this.name = nameOrAge
-        } else if (typeof nameOrAge === 'number') {
-            this.age = nameOrAge
-        } else if (typeof age === 'number') {
-            this.age = age
+class Payment {
+    status: PaymentStatus = PaymentStatus.Hold
+    id: string
+    createdAt: Date = new Date()
+    updatedAt: Date
+
+    constructor(id: string) {
+        this.id = id
+    }
+
+    unHoldPayment() {
+        if (this.status !== PaymentStatus.Processed) {
+            this.status = PaymentStatus.Reversed
+            this.updatedAt = new Date()
+        } else {
+            throw new Error('Payment is already processed!')
         }
+    }
+
+    getLeftLifeTime(): number {
+        return new Date().getTime() - this.createdAt.getTime()
     }
 }
 
-const user = new User('John')
-const user1 = new User()
-const user2 = new User(23)
+const p1 = new Payment('1')
+p1.unHoldPayment()
+console.log(p1)
+console.log(p1.getLeftLifeTime())
