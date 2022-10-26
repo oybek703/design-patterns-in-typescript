@@ -1,10 +1,7 @@
-const a = 'test'
-
-
-function fetchData(url: string, method: 'POST' | 'GET') {
-
+function multiply(number: number) {
+    return number * number
 }
 
-let method = 'POST'
-
-fetchData('some_url', method)
+function test(param?: number) {
+    const res = param ?? multiply(10)
+}
