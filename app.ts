@@ -1,32 +1,45 @@
-interface User {
-    name: 'John'
-    email: 'test@gmail.com'
+interface IData {
+    sum: number
+    from: number
+    to: number
 }
 
-interface Admin {
-    role: 0 | 1
-    name: 'Doe'
+interface IReq extends IData {
 }
 
-function isAdmin(user: User | Admin): user is Admin {
-    return 'role' in user
+enum Status {
+    Success = 'success',
+    Failed = 'failed'
 }
 
-function setRoleZero(user: User | Admin): never {
-    if (isAdmin(user)) {
-        user.role = 0
-    }
-    throw new Error('User is not admin!')
+interface IResDataSuccess extends IData {
+    databaseId: number
 }
 
-function logId(x: string | number) {
-    if (isString(x)) {
-        const tempX = x
-    } else {
-
-    }
+interface IResDataFail {
+    errorMessage: string
+    errorCode: number
 }
 
-function isString(x: string | number): x is string {
-    return typeof x === 'string'
+interface IResSuccess {
+    status: Status.Success,
+    data: IResDataSuccess
+}
+
+interface IResFail {
+    status: Status.Failed,
+    data: IResDataFail
+}
+
+type Res = IResSuccess | IResFail
+
+type f = (res: Res) => number
+
+const reportResponse:f = (res: Res) => {
+    if (isSuccess(res)) return res.data.databaseId
+    throw new Error(res.data.errorMessage)
+}
+
+function isSuccess(res: Res): res is IResSuccess {
+    return res.status === Status.Success
 }
