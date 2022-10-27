@@ -1,10 +1,11 @@
-class User {
-    constructor(private name: string) {
-    }
+const nums: Array<number> = [1, 2, 3, 4]
 
-    logName() {
-        console.log(this.name)
-    }
+async function test() {
+    const a = await new Promise<string>(resolve => {
+        resolve('Some value')
+    })
 }
 
-new User('John').logName()
+const skills: Record<string, boolean> = {
+    drive: true
+}
