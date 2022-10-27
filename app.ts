@@ -1,19 +1,41 @@
-class Res<T, K> {
-    data?: T
-    error?: K
+type Constructor = new (...args: any[]) => {}
+type GConstructor<T> = new (...args: any[]) => T
 
-    constructor(data?: T, error?: K) {
-        this.data = data
-        this.error = error
+class List {
+    constructor(public items: string[]) {
     }
 }
 
-const res1 = new Res<string, number>('data', 0)
-
-class HttpRes<F> extends Res <string, number>{
-    constructor(public code: F) {
-        super()
+class Accordion {
+    constructor(public isOpened: boolean) {
     }
 }
 
-const res2 = new HttpRes<number>(1)
+type ListType = GConstructor<List>
+type AccordionType = GConstructor<Accordion>
+
+class ExtendedListClass extends List {
+    first() {
+        return this.items[0]
+    }
+}
+
+function ExtendedList<TBase extends ListType & AccordionType>(Base: TBase) {
+    return class ExtendedList extends Base {
+        first() {
+            return this.items[0]
+        }
+    }
+}
+
+class AccordionList {
+    isOpened: boolean
+
+    constructor(public items: string[]) {
+    }
+}
+
+const list = ExtendedList(AccordionList)
+
+const res = new list(['first item', 'second item'])
+console.log(res.first())
