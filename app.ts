@@ -1,24 +1,22 @@
-abstract class App {
-    abstract handle(): void
+abstract class Logger {
+    abstract log(message: unknown): void
 
-    async handleWithLogs() {
-        console.time('handle')
-        await this.handle()
-        console.timeEnd('handle')
+    printDate() {
+        this.log(new Date())
     }
 }
 
-class MyApp extends App {
-    async handle() {
-        return new Promise(resolve => {
-            setTimeout(function () {
-                console.log('Child method handle class.')
-                resolve('Child method handle class.')
-            }, 3000)
-        })
+class MyLogger extends Logger {
+    log(message: string) {
+        console.log(message)
+    }
+
+    logWithDate(message: string) {
+        this.printDate()
+        this.log(message)
     }
 }
 
-const myApp1 = new MyApp();
+const myLogger1 = new MyLogger()
 
-(async () => await myApp1.handleWithLogs())()
+myLogger1.logWithDate('Some log...')
