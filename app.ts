@@ -1,28 +1,27 @@
-class Payment {
-    date: Date = new Date()
+class UserBuilder {
+    name: string
 
-    getDate(this: Payment, title: string = 'Date') {
-        return `${title} => ${this.date}`
+    setName(name: string): this {
+        this.name = name
+        return this
     }
 
-    getDateArrow = () => {
-        return this.date
-    }
-}
-
-const p1 = new Payment()
-
-const user = {
-    id: 1,
-    paymentDate: p1.getDate.bind(p1)
-}
-
-class PaymentServices extends Payment{
-    getInfo() {
-        console.log(this)
-        return super.getDateArrow()
+    isAdmin(): this is AdminBuilder {
+        return this instanceof AdminBuilder
     }
 }
 
-console.log(user.paymentDate())
-console.log(new PaymentServices().getInfo())
+class AdminBuilder extends UserBuilder {
+    roles: string[]
+}
+
+const res1 = new UserBuilder().setName('John')
+const res2 = new AdminBuilder().setName('Doe')
+
+const user: UserBuilder | AdminBuilder = new UserBuilder()
+
+if (res1.isAdmin()) {
+    console.log(user)
+} else {
+    console.log(user)
+}
