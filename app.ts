@@ -1,48 +1,60 @@
-class Delivery {
+interface Delivery {
     date: Date
-    address?: string
-    shopId: string
+}
 
-    constructor(date: Date, address?: string, shopId?: string) {
-        this.date = date
-        if (address) {
-            this.address = address
-        }
-        if (shopId) {
-            this.shopId = shopId
-        }
+class HomeDelivery implements Delivery {
+    date: Date
+
+    constructor(public address: string) {
     }
 }
 
+class ShopDelivery implements Delivery{
+    constructor(public date = new Date()) {
+    }
+}
+
+type DeliveryOptions = HomeDelivery | ShopDelivery
+
 class Product {
-    id: string
-    name: string
-    price: number
+    constructor(public id: string | number, public name: string, public price: number) {
+    }
 }
 
 class Cart {
-    products: Product[]
-    delivery: Delivery
+    private products: Product[] = []
+    private delivery: DeliveryOptions
 
-    addProduct(product: Product) {
+    addProduct(product: Product): void {
         this.products.push(product)
     }
 
-    deleteProduct(productId: string) {
-        this.products = this.products.filter(({id}) => id == productId)
+    deleteProduct(productId: string | number): void {
+        this.products = this.products.filter(({id}) => id !== productId)
     }
 
-    totalCost() {
+    getTotalPrice(): number {
         return this.products.reduce((acc, val) => acc += val['price'], 0)
     }
 
-    addDelivery(delivery: Delivery) {
-        this.delivery = new Delivery(delivery.date, delivery.address, delivery.shopId)
-        return this.delivery
+    setDelivery(delivery: DeliveryOptions): void {
+        this.delivery = delivery
     }
 
-    checkout() {
-
+    checkout(): {success: boolean} | never {
+        if (this.products.length === 0) throw new Error('No products added!')
+        if (!this.delivery) throw new Error('Delivery is not set!')
+        return {success: true}
     }
 
 }
+
+const cart = new Cart()
+
+cart.addProduct(new Product(1, 'Shirt', 20))
+cart.addProduct(new Product(2, 'Shoes', 40))
+cart.addProduct(new Product(3, 'Socks', 10))
+cart.deleteProduct(2)
+console.log(cart.getTotalPrice())
+cart.setDelivery(new HomeDelivery('Some Address'))
+console.log(cart.checkout())
