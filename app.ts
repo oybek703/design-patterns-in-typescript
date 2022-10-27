@@ -1,5 +1,17 @@
 function toString<T>(data: T): string | undefined {
-    return JSON.stringify(data)
+    if (Array.isArray(data)) return data.toString()
+    switch (typeof data) {
+        case 'string':
+            return data
+        case 'bigint':
+        case 'boolean':
+        case 'number':
+        case 'symbol':
+        case 'function':
+            return data.toString()
+        default:
+            return undefined
+    }
 }
 
-const test1 = JSON.stringify(undefined)
+console.log(toString(null))
