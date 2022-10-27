@@ -1,27 +1,24 @@
-class UserBuilder {
-    name: string
+abstract class App {
+    abstract handle(): void
 
-    setName(name: string): this {
-        this.name = name
-        return this
-    }
-
-    isAdmin(): this is AdminBuilder {
-        return this instanceof AdminBuilder
+    async handleWithLogs() {
+        console.time('handle')
+        await this.handle()
+        console.timeEnd('handle')
     }
 }
 
-class AdminBuilder extends UserBuilder {
-    roles: string[]
+class MyApp extends App {
+    async handle() {
+        return new Promise(resolve => {
+            setTimeout(function () {
+                console.log('Child method handle class.')
+                resolve('Child method handle class.')
+            }, 3000)
+        })
+    }
 }
 
-const res1 = new UserBuilder().setName('John')
-const res2 = new AdminBuilder().setName('Doe')
+const myApp1 = new MyApp();
 
-const user: UserBuilder | AdminBuilder = new UserBuilder()
-
-if (res1.isAdmin()) {
-    console.log(user)
-} else {
-    console.log(user)
-}
+(async () => await myApp1.handleWithLogs())()
