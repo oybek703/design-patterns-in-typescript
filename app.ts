@@ -1,26 +1,19 @@
-interface Data {
-    id: number
-    name: string
+class Res<T, K> {
+    data?: T
+    error?: K
+
+    constructor(data?: T, error?: K) {
+        this.data = data
+        this.error = error
+    }
 }
 
-type orderTypes = 'asc' | 'desc'
+const res1 = new Res<string, number>('data', 0)
 
-function sortData<T extends Data>(data: Array<T>, order: orderTypes = 'asc'): Array<T> {
-    return data.sort((a, b) => order === 'asc' ? a.id - b.id : b.id - a.id)
-    // if (order === 'asc') {
-    //     return data.sort((a, b) => a.id - b.id)
-    // } else {
-    //     return data.sort((a, b) => b.id - a.id)
-    // }
+class HttpRes<F> extends Res <string, number>{
+    constructor(public code: F) {
+        super()
+    }
 }
 
-const data: Data[] = [
-    {id: Math.round(Math.random() * 100), name: 'u1'},
-    {id: Math.round(Math.random() * 100), name: 'u2'},
-    {id: Math.round(Math.random() * 100), name: 'u3'},
-    {id: Math.round(Math.random() * 100), name: 'u4'}
-]
-
-console.log(data)
-console.log(sortData(data, 'desc'))
-console.log(sortData(data))
+const res2 = new HttpRes<number>(1)
