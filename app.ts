@@ -1,35 +1,13 @@
-const a: number = Math.random() > 0.5 ? 1 : 0
-
-interface HttpResponse<T extends 'success' | 'failed'> {
-    code: number
-    data: T extends 'success' ? string : Error
+function runTransaction(transaction: {
+    fromTo: [string, string]
+}) {
+    console.log(transaction)
 }
 
-const res1: HttpResponse<'success'> = {
-    code: 0,
-    data: 'done'
+const transaction: GetFirstArg<typeof runTransaction> = {
+    fromTo: ['1', '2']
 }
 
-const res2: HttpResponse<'failed'> = {
-    code: 1,
-    data: new Error('Some error')
-}
+runTransaction(transaction)
 
-
-class User {
-    id: number
-}
-
-class UserPersistent extends User{
-    dbId: string
-}
-
-type UserType<T extends number | string> = T extends number ? User : UserPersistent
-
-function getUser<T extends string | number>(id: T): UserType<T> {
-    if (typeof id == 'number') {
-        return new User() as UserType<T>
-    } else {
-        return new UserPersistent()
-    }
-}
+type GetFirstArg<T> = T extends (first: infer First, ...args: any[]) => any ? First : never
