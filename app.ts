@@ -1,19 +1,21 @@
-type Modifier = 'read' | 'update' | 'create'
-
-type UserRoles = {
-    customers?: Modifier
-    products?: Modifier
-    adminPanel?: Modifier
+interface IForm {
+    name: string
+    password: string,
+    age: number
 }
 
-type ModifierToAccess<Type> = {
-    +readonly [Property in keyof Type as Exclude<`canAccess${string & Property}`, 'canAccesscustomers'>]-?: boolean
+type FormToValidation<T> = {
+    [key in keyof T]: { isValid: true } | { isValid: false, errorMessage: string }
 }
 
-type UserAccess2 = ModifierToAccess<UserRoles>
+const form: IForm = {
+    name: 'John',
+    password: '123',
+    age: 23
+}
 
-type UserAccess = {
-    customers?: boolean
-    products?: boolean
-    adminPanel?: boolean
+const formValidation: FormToValidation<IForm> = {
+    name: {isValid: true},
+    password: {isValid: false, errorMessage: 'Password must have at least 5 characters!'},
+    age: {isValid: false}
 }
