@@ -1,18 +1,13 @@
-type ReadOrWrite = 'write' | 'read'
-type Bulk = 'bulk' | ''
-
-type Access = `can${Capitalize<ReadOrWrite>}${Capitalize<Bulk>}`
-
-type ReadOrWriteBulk<T> = T extends `can${infer R}` ? R : never
-
-type T1 = ReadOrWriteBulk<Access>
-
-type ErrorOrSuccess = 'error' | 'success'
-
-type ResponseT = {
-    result: `http${Capitalize<ErrorOrSuccess>}`
+interface User {
+    name: string
+    age?: number
+    email: string
 }
 
-const res: ResponseT = {
-    result: 'httpSuccess'
-}
+type partial = Partial<User>
+
+const u1: partial = {}
+
+type readonly = Readonly<User>
+type required = Required<User>
+type requiredAndReadOnly = Readonly<Required<User>>
