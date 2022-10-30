@@ -1,13 +1,12 @@
-interface User {
-    name: string
-    age?: number
-    email: string
+interface PaymentPersistent {
+    id: number
+    sum: number
+    from: string
+    to: string
 }
 
-type partial = Partial<User>
+type Payment = Omit<PaymentPersistent, 'id'>
+type PaymentRequisites = Pick<PaymentPersistent, 'from' | 'to'>
 
-const u1: partial = {}
-
-type readonly = Readonly<User>
-type required = Required<User>
-type requiredAndReadOnly = Readonly<Required<User>>
+type ExtractEx = Extract<'from' | 'to' | Payment, string>
+type ExcludeEx = Exclude<'from' | 'to' | Payment, number>
