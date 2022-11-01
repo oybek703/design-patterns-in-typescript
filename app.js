@@ -15,13 +15,33 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 class UserService {
+    constructor() {
+        this.users = 1000;
+    }
     getUsersInDatabase() {
         throw new Error('Some "getUsersInDatabase" error!');
     }
 }
 __decorate([
+    Max(100)
+], UserService.prototype, "users", void 0);
+__decorate([
     Log({ reThrow: true })
 ], UserService.prototype, "getUsersInDatabase", null);
+function Max(max) {
+    return (target, propertyKey) => {
+        let value;
+        const setter = (newValue) => newValue > max ? console.log(`Cannot set value more than ${max}`) : value = newValue;
+        const getter = () => value;
+        Object.defineProperty(target, propertyKey, {
+            set: setter,
+            get: getter
+        });
+    };
+}
+const userService = new UserService();
+userService.users = 20;
+console.log(userService.users);
 function Log({ reThrow } = { reThrow: false }) {
     return (target, propertyKey, descriptor) => {
         descriptor.enumerable = true;
@@ -39,6 +59,3 @@ function Log({ reThrow } = { reThrow: false }) {
         });
     };
 }
-const usersService = new UserService();
-usersService.getUsersInDatabase();
-console.log(Object.keys(usersService));
