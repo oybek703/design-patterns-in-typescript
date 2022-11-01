@@ -1,3 +1,3 @@
-/// <reference path="./module/app2.ts"/>
+import {A} from './module/app2.js'
 
 console.log(A.a)

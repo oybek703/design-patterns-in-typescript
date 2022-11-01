@@ -1,5 +1,4 @@
-"use strict";
-var A;
+export var A;
 (function (A) {
     A.a = 5;
 })(A || (A = {}));
