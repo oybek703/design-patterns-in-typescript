@@ -1,8 +1,5 @@
-interface IUserService {
-    users: number
-    getUsersInDatabase: () => number
-}
-
+@threeUsers
+@nullUsers
 class UserService implements IUserService {
     users = 1000
 
@@ -11,16 +8,19 @@ class UserService implements IUserService {
     }
 }
 
-function nullUsers(obj: IUserService) {
-    obj.users = 0
-    return obj
+interface IUserService {
+    users: number
+    getUsersInDatabase: () => number
 }
 
-function logUsers(obj: IUserService) {
-    console.log('Users: ', obj.users)
-    return obj
+function nullUsers(target: Function) {
+    target.prototype.users = 0
+}
+
+function threeUsers<T extends new (...args: any[]) => {} >(constructor: T) {
+    return class extends constructor {
+        users = 3
+    }
 }
 
 console.log(new UserService().getUsersInDatabase())
-console.log(nullUsers(new UserService()).getUsersInDatabase())
-logUsers(nullUsers(new UserService())).getUsersInDatabase()
