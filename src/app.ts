@@ -1,3 +1,4 @@
-import {A} from './module/app2.js'
-
-console.log(A.a)
+import {toJson} from 'really-relaxed-json'
+const rjson = '[ one two three {foo:bar} ]'
+const json = toJson(rjson)
+console.log(json)

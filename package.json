@@ -1,7 +1,6 @@
 {
   "name": "typescript-patterns",
   "version": "1.0.0",
-  "type": "module",
   "description": "",
   "main": "app.js",
   "scripts": {
@@ -11,6 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "really-relaxed-json": "^0.3.1",
     "reflect-metadata": "^0.1.13"
   }
 }
