@@ -6,30 +6,23 @@ interface IUserService {
 class UserService implements IUserService {
     users: 1000
 
-    @Log()
+    @Log({reThrow: true})
     getUsersInDatabase(): number {
         throw new Error('Some "getUsersInDatabase" error!')
     }
 }
 
-function Log(reThrow: boolean = false) {
+function Log({reThrow}: { reThrow: boolean } = {reThrow: false}) {
     return (target: Object, propertyKey: string | symbol, descriptor: TypedPropertyDescriptor<(...args: any[]) => any>): TypedPropertyDescriptor<(...args: any[]) => any> | void => {
-        console.log(target)
-        console.log(propertyKey)
-        console.log(descriptor)
         descriptor.enumerable = true
         const oldFunc = descriptor.value
-        descriptor.value = (...args: any[]) => {
+        descriptor.value = async (...args: any[]) => {
             try {
-                if (oldFunc) {
-                    oldFunc(args)
-                }
+                return await oldFunc?.apply(target, args)
             } catch (e) {
                 console.error(`Error occurred in ${propertyKey as string}`)
                 if (reThrow) {
-                    if (e instanceof Error) {
-                        throw new Error(e.message)
-                    }
+                    throw e
                 }
             }
         }
