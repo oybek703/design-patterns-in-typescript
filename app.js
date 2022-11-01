@@ -5,21 +5,38 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-let UserService = class UserService {
+class UserService {
     getUsersInDatabase() {
-        return this.users;
+        throw new Error('Some "getUsersInDatabase" error!');
     }
-};
-UserService = __decorate([
-    AddCreatedAt
-], UserService);
-function AddCreatedAt(constructor) {
-    return class extends constructor {
-        constructor() {
-            super(...arguments);
-            this.createdAt = new Date();
-        }
+}
+__decorate([
+    Log()
+], UserService.prototype, "getUsersInDatabase", null);
+function Log(reThrow = false) {
+    return (target, propertyKey, descriptor) => {
+        console.log(target);
+        console.log(propertyKey);
+        console.log(descriptor);
+        descriptor.enumerable = true;
+        const oldFunc = descriptor.value;
+        descriptor.value = (...args) => {
+            try {
+                if (oldFunc) {
+                    oldFunc(args);
+                }
+            }
+            catch (e) {
+                console.error(`Error occurred in ${propertyKey}`);
+                if (reThrow) {
+                    if (e instanceof Error) {
+                        throw new Error(e.message);
+                    }
+                }
+            }
+        };
     };
 }
 const usersService = new UserService();
-console.log(usersService.createdAt);
+usersService.getUsersInDatabase();
+console.log(Object.keys(usersService));

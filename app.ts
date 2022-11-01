@@ -3,24 +3,39 @@ interface IUserService {
     getUsersInDatabase: () => number
 }
 
-@AddCreatedAt
 class UserService implements IUserService {
     users: 1000
 
-    getUsersInDatabase() {
-        return this.users
+    @Log()
+    getUsersInDatabase(): number {
+        throw new Error('Some "getUsersInDatabase" error!')
     }
 }
 
-function AddCreatedAt<T extends new (...args: any[]) => {}>(constructor: T) {
-    return class extends constructor {
-        createdAt = new Date()
+function Log(reThrow: boolean = false) {
+    return (target: Object, propertyKey: string | symbol, descriptor: TypedPropertyDescriptor<(...args: any[]) => any>): TypedPropertyDescriptor<(...args: any[]) => any> | void => {
+        console.log(target)
+        console.log(propertyKey)
+        console.log(descriptor)
+        descriptor.enumerable = true
+        const oldFunc = descriptor.value
+        descriptor.value = (...args: any[]) => {
+            try {
+                if (oldFunc) {
+                    oldFunc(args)
+                }
+            } catch (e) {
+                console.error(`Error occurred in ${propertyKey as string}`)
+                if (reThrow) {
+                    if (e instanceof Error) {
+                        throw new Error(e.message)
+                    }
+                }
+            }
+        }
     }
-}
-
-type CreateAt = {
-    createdAt: Date
 }
 
 const usersService = new UserService()
-console.log((usersService as IUserService & CreateAt).createdAt)
+usersService.getUsersInDatabase()
+console.log(Object.keys(usersService))
