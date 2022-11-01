@@ -1,0 +1,16 @@
+Initializing PROP
+Running PROP
+Initializing METHOD
+Initializing METHOD PARAM
+Running METHOD PARAM
+Running METHOD
+Initializing STATIC PROP1
+Running STATIC PROP1
+Initializing STATIC METHOD1
+Initializing STATIC METHOD1 PARAM
+Running STATIC METHOD1 PARAM
+Running STATIC METHOD1
+Initializing CLASS
+Initializing CONSTRUCTOR PARAM
+Running CONSTRUCTOR PARAM
+Running CLASS

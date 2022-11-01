@@ -1,52 +1,27 @@
-import 'reflect-metadata'
-
-const POSITIVE_METADATA_KEY = Symbol('POSITIVE_METADATA_KEY')
-
-interface IUserService {
-    users: number
-    getUsersInDatabase: () => number
-}
-
-class UserService implements IUserService {
-    users: number
-
-    getUsersInDatabase(): number {
-        return this.users
-    }
-
-    @Validate()
-    setUsersInDatabase(@Positive() num: number): void {
-        this.users = num
+function Unv(name: string): any {
+    console.log(`Initializing ${name}`)
+    return function () {
+        console.log(`Running ${name}`)
     }
 }
 
-function Positive() {
-    return (target: Object, propertyKey: string | symbol, parameterIndex: number) => {
-        console.log(Reflect.getOwnMetadata('design:type', target, propertyKey))
-        console.log(Reflect.getOwnMetadata('design:paramtypes', target, propertyKey))
-        console.log(Reflect.getOwnMetadata('design:returntypes', target, propertyKey))
-        let existingParams: number[] = Reflect.getOwnMetadata(POSITIVE_METADATA_KEY, target, propertyKey) ?? []
-        existingParams.push(parameterIndex)
-        Reflect.defineMetadata(POSITIVE_METADATA_KEY, existingParams, target, propertyKey)
+@Unv('CLASS')
+class User {
+    @Unv('PROP')
+    prop: string
+    @Unv('STATIC PROP1')
+    static prop1: string
+
+    constructor(@Unv('CONSTRUCTOR PARAM') _: any) {
+    }
+
+    @Unv('METHOD')
+    method(@Unv('METHOD PARAM')_: string) {
+
+    }
+
+    @Unv('STATIC METHOD1')
+    static method1(@Unv('STATIC METHOD1 PARAM')_: string) {
+
     }
 }
-
-function Validate() {
-    return (target: Object, propertyKey: string | symbol, descriptor: TypedPropertyDescriptor<(...args: any) => any>) => {
-        let method = descriptor.value
-        descriptor.value = (...args: any) => {
-            const positiveParams: number[] = Reflect.getOwnMetadata(POSITIVE_METADATA_KEY, target, propertyKey)
-            if (positiveParams) {
-                for (const positiveParam of positiveParams) {
-                    if (args[positiveParam] < 0) {
-                        throw new Error('Number must be positive number or zero.')
-                    }
-                }
-            }
-            return method?.apply(target, args)
-        }
-    }
-}
-
-const usersService = new UserService()
-usersService.setUsersInDatabase(-15)
