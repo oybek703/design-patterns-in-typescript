@@ -1,3 +1,7 @@
+import 'reflect-metadata'
+
+const POSITIVE_METADATA_KEY = Symbol('POSITIVE_METADATA_KEY')
+
 interface IUserService {
     users: number
     getUsersInDatabase: () => number
@@ -10,19 +14,32 @@ class UserService implements IUserService {
         return this.users
     }
 
-    setUsersInDatabase(@Positive() num: number, @Positive() _?: number): void {
+    @Validate()
+    setUsersInDatabase(@Positive() num: number): void {
         this.users = num
     }
 }
 
 function Positive() {
     return (target: Object, propertyKey: string | symbol, parameterIndex: number) => {
-        console.log(target)
-        console.log(propertyKey)
-        console.log(parameterIndex)
+        console.log(Reflect.getOwnMetadata('design:type', target, propertyKey))
+        console.log(Reflect.getOwnMetadata('design:paramtypes', target, propertyKey))
+        console.log(Reflect.getOwnMetadata('design:returntypes', target, propertyKey))
+        let existingParams: number[] = Reflect.getOwnMetadata(POSITIVE_METADATA_KEY, target, propertyKey) ?? []
+        Reflect.defineMetadata(POSITIVE_METADATA_KEY, existingParams, target, propertyKey)
+    }
+}
+
+function Validate() {
+    return (target: Object, propertyKey: string | symbol, descriptor: TypedPropertyDescriptor<(...args: any) => any>) => {
+        let method = descriptor.value
+        descriptor.value = (...args: any) => {
+            const positiveParams: number[] = Reflect.getOwnMetadata(POSITIVE_METADATA_KEY, target, propertyKey)
+            
+            return method?.apply(target, args)
+        }
     }
 }
 
 const usersService = new UserService()
 usersService.setUsersInDatabase(-15)
-console.log(usersService.getUsersInDatabase())
