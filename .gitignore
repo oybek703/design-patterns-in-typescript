@@ -1,2 +1,9 @@
 # IDE files
 .idea
+
+# Build
+/build
+*.js
+
+# Dependencies
+/node_modules
