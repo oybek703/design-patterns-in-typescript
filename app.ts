@@ -1,36 +1,26 @@
-class MyMap {
-    private static instance: MyMap
-    map: Map<number, string> = new Map()
-
-    private constructor() {}
-
-    clean() {
-        this.map = new Map()
-    }
-
-    static get() {
-        if (!MyMap.instance) {
-            MyMap.instance = new MyMap()
-        }
-        return MyMap.instance
-    }
+interface Prototype<T> {
+    clone(): T
 }
 
-class Service1 {
-    addMap(key: number, value: string) {
-        const myMap = MyMap.get()
-        myMap.map.set(key, value)
+class User implements Prototype<User> {
+    createdAt: Date
+
+    constructor(public email: string, public name: string) {
+        this.createdAt = new Date()
     }
+
+    clone(): User {
+        const target = new User(this.email, this.name)
+        target.createdAt = this.createdAt
+        return target
+    }
+
 }
 
-class Service2 {
-    getByKey(key: number) {
-        const myMap = MyMap.get()
-        console.log(myMap.map.get(key))
-        myMap.clean()
-        console.log(myMap.map.get(key))
-    }
-}
-
-new Service1().addMap(1, 'Working')
-new Service2().getByKey(1)
+const user1 = new User('john@gmail.com', 'John')
+console.log(user1)
+const user2 = user1.clone()
+user2.name = 'Doe'
+user2.email = 'doe@gmail.com'
+console.log(user2)
+console.log(user1)
