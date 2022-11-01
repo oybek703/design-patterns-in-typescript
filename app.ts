@@ -1,78 +1,36 @@
-interface IInsurance {
-    id: number
-    status: string
+class MyMap {
+    private static instance: MyMap
+    map: Map<number, string> = new Map()
 
-    setVehicle(vehicle: any): void
-}
+    private constructor() {}
 
-class TFInsurance implements IInsurance {
-    id: number
-    status: string
-    vehicle: any
+    clean() {
+        this.map = new Map()
+    }
 
-    setVehicle(vehicle: any) {
-        this.vehicle = vehicle
+    static get() {
+        if (!MyMap.instance) {
+            MyMap.instance = new MyMap()
+        }
+        return MyMap.instance
     }
 }
 
-class ABInsurance implements IInsurance {
-    id: number
-    status: string
-    vehicle: any
-
-    setVehicle(vehicle: any) {
-        this.vehicle = vehicle
+class Service1 {
+    addMap(key: number, value: string) {
+        const myMap = MyMap.get()
+        myMap.map.set(key, value)
     }
 }
 
-abstract class InsuranceFactory {
-    db: any
-
-    createInsurance() {
-    }
-
-    saveHistory(ins: IInsurance) {
-        this.db.saveToDB(ins)
+class Service2 {
+    getByKey(key: number) {
+        const myMap = MyMap.get()
+        console.log(myMap.map.get(key))
+        myMap.clean()
+        console.log(myMap.map.get(key))
     }
 }
 
-class TFInsuranceFactory extends InsuranceFactory {
-    createInsurance(): IInsurance {
-        return new TFInsurance()
-    }
-}
-
-class ABInsuranceFactory extends InsuranceFactory {
-    createInsurance(): IInsurance {
-        return new ABInsurance()
-    }
-}
-
-const tfInsuranceFactory = new TFInsuranceFactory()
-const TFIns = tfInsuranceFactory.createInsurance()
-tfInsuranceFactory.saveHistory(TFIns)
-
-
-const INSURANCE_TYPE = {
-    ab: ABInsurance,
-    tf: TFInsurance
-}
-
-type IT = typeof INSURANCE_TYPE
-
-class InsuranceFactoryAlt {
-    db: any
-
-    createInsurance<T extends keyof IT>(type: T): IT[T]  {
-        return INSURANCE_TYPE[type]
-    }
-
-    saveHistory(ins: IInsurance) {
-        this.db.saveToDB(ins)
-    }
-
-}
-
-const insFactoryAlt = new InsuranceFactoryAlt()
-const ABIns = new (insFactoryAlt.createInsurance('ab'))
-insFactoryAlt.saveHistory(ABIns)
+new Service1().addMap(1, 'Working')
+new Service2().getByKey(1)
