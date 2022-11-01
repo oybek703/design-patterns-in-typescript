@@ -1,26 +1,58 @@
-interface Prototype<T> {
-    clone(): T
+enum ImageFormat {
+    Png = 'png',
+    Jpg = 'jpg'
 }
 
-class User implements Prototype<User> {
-    createdAt: Date
-
-    constructor(public email: string, public name: string) {
-        this.createdAt = new Date()
-    }
-
-    clone(): User {
-        const target = new User(this.email, this.name)
-        target.createdAt = this.createdAt
-        return target
-    }
-
+interface IResolution {
+    width: number
+    height: number
 }
 
-const user1 = new User('john@gmail.com', 'John')
-console.log(user1)
-const user2 = user1.clone()
-user2.name = 'Doe'
-user2.email = 'doe@gmail.com'
-console.log(user2)
-console.log(user1)
+interface ImageConversion extends IResolution {
+    format: ImageFormat
+}
+
+class ImageBuilder {
+    private formats: ImageFormat[] = []
+    private resolutions: IResolution[] = []
+
+    addPng() {
+        if (this.formats.includes(ImageFormat.Png)) {
+            return this
+        }
+        this.formats.push(ImageFormat.Png)
+        return this
+    }
+
+    addJpg() {
+        if (this.formats.includes(ImageFormat.Jpg)) {
+            return this
+        }
+        this.formats.push(ImageFormat.Jpg)
+        return this
+    }
+
+    addResolution(width: number, height: number) {
+        this.resolutions.push({width, height})
+        return this
+    }
+
+    build(): ImageConversion[] {
+        const res: ImageConversion[] = []
+        for (const resolution of this.resolutions) {
+            for (const format of this.formats) {
+                res.push({width: resolution.width, height: resolution.height, format})
+            }
+        }
+        return res
+    }
+}
+
+console.log(
+    new ImageBuilder()
+        .addJpg()
+        .addPng()
+        .addResolution(100, 101)
+        .addResolution(9, 10)
+        .build()
+)
