@@ -1,58 +1,53 @@
-interface IMiddleware {
-    next(mid: IMiddleware): IMiddleware
-
-    handle(request: any): any
+interface IMediator {
+    notify(sender: string, event: string): void
 }
 
-abstract class AbstractMiddleware implements IMiddleware {
-    private nextMiddleware: IMiddleware
 
-    handle(request: any): any {
-        if (this.nextMiddleware) {
-            return this.nextMiddleware.handle(request)
+class Notifications {
+    send() {
+        console.log('Send message!')
+    }
+}
+
+class Log {
+    log(message: string) {
+        console.log(message)
+    }
+}
+
+class Mediated {
+    mediator: IMediator
+
+    setMediator(mediator: IMediator) {
+        this.mediator = mediator
+    }
+}
+
+class EventHandler extends Mediated {
+    myEvent() {
+        this.mediator.notify('EventHandler', 'myEvent')
+    }
+}
+
+class NotificationsMediator implements IMediator {
+
+    constructor(public notifier: Notifications, public logger: Log, public handler: EventHandler) {}
+
+    notify(_: string, event: string) {
+        switch (event) {
+            case 'myEvent':
+                this.notifier.send()
+                this.logger.log('Message send!')
+                break
         }
-        return
-    }
-
-    next(mid: IMiddleware): IMiddleware {
-        this.nextMiddleware = mid
-        return mid
     }
 }
 
-class AuthMiddleware extends AbstractMiddleware {
+const logger = new Log()
+const handler = new EventHandler()
+const notifier = new Notifications()
 
-    override handle(request: any): any {
-        console.log('AuthMiddleware')
-        if (request.userId === 1) {
-            return super.handle(request)
-        }
-        return {error: 'Not authorized!'}
-    }
-}
+const m = new NotificationsMediator(notifier, logger, handler)
 
-
-class ValidateMiddleware extends AbstractMiddleware {
-    override handle(request: any): any {
-        console.log('ValidateMiddleware')
-        if (request.body) {
-            return super.handle(request)
-        }
-        return {error: 'No request body!'}
-    }
-}
-
-class Controller extends AbstractMiddleware {
-    override handle(request: any): any {
-        console.log('Controller')
-        return {success: request}
-    }
-}
-
-const controller = new Controller()
-const auth = new AuthMiddleware()
-const validate = new ValidateMiddleware()
-
-auth.next(validate).next(controller)
-
-console.log(auth.handle({userId: 1, body: 'OK!'}))
+handler.setMediator(m)
+handler.myEvent()
