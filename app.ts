@@ -1,58 +1,54 @@
-enum ImageFormat {
-    Png = 'png',
-    Jpg = 'jpg'
+interface IProvider {
+    connect(config: string): void
+
+    send(message: string): void
+
+    disconnect(): void
 }
 
-interface IResolution {
-    width: number
-    height: number
+class TelegramProvider implements IProvider {
+    connect(config: string) {
+        console.log(config)
+    }
+
+    send(message: string) {
+        console.log(message)
+    }
+
+    disconnect() {
+        console.log('Disconnect Telegram!')
+    }
 }
-
-interface ImageConversion extends IResolution {
-    format: ImageFormat
-}
-
-class ImageBuilder {
-    private formats: ImageFormat[] = []
-    private resolutions: IResolution[] = []
-
-    addPng() {
-        if (this.formats.includes(ImageFormat.Png)) {
-            return this
-        }
-        this.formats.push(ImageFormat.Png)
-        return this
+class WhatsUpProvider implements IProvider {
+    connect(config: string) {
+        console.log(config)
     }
 
-    addJpg() {
-        if (this.formats.includes(ImageFormat.Jpg)) {
-            return this
-        }
-        this.formats.push(ImageFormat.Jpg)
-        return this
+    send(message: string) {
+        console.log(message)
     }
 
-    addResolution(width: number, height: number) {
-        this.resolutions.push({width, height})
-        return this
-    }
-
-    build(): ImageConversion[] {
-        const res: ImageConversion[] = []
-        for (const resolution of this.resolutions) {
-            for (const format of this.formats) {
-                res.push({width: resolution.width, height: resolution.height, format})
-            }
-        }
-        return res
+    disconnect() {
+        console.log('Disconnect WhatsUp!')
     }
 }
 
-console.log(
-    new ImageBuilder()
-        .addJpg()
-        .addPng()
-        .addResolution(100, 101)
-        .addResolution(9, 10)
-        .build()
-)
+class NotificationSender {
+    constructor(private provider: IProvider) {
+    }
+
+    sendMessage(message: string) {
+        this.provider.connect('some config')
+        this.provider.send(message)
+        this.provider.disconnect()
+    }
+}
+
+class DelayedNotificationSender extends NotificationSender{
+    constructor(provider: IProvider) {
+        super(provider)
+    }
+}
+
+const sender = new NotificationSender(new TelegramProvider())
+sender.sendMessage('message from Telegram!')
