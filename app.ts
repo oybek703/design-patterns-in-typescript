@@ -1,53 +1,75 @@
-interface IMediator {
-    notify(sender: string, event: string): void
-}
-
-
-class Notifications {
-    send() {
-        console.log('Send message!')
+class User {
+    constructor(public userId: number) {
     }
 }
 
-class Log {
-    log(message: string) {
-        console.log(message)
+class CommandHistory {
+    public commands: Command[] = []
+
+    push(command: Command) {
+        this.commands.push(command)
+    }
+
+    remove(command: Command) {
+        this.commands = this.commands.filter(({commandId}) => commandId !== command.commandId)
     }
 }
 
-class Mediated {
-    mediator: IMediator
+abstract class Command {
+    public commandId: number
 
-    setMediator(mediator: IMediator) {
-        this.mediator = mediator
+    abstract execute(): void
+
+    protected constructor(public history: CommandHistory) {
+        this.commandId = Math.random()
+    }
+
+}
+
+class AddUserCommand extends Command {
+    constructor(private user: User, private receiver: UserService, history: CommandHistory) {
+        super(history)
+    }
+
+    execute() {
+        this.receiver.saveUser(this.user)
+        this.history.push(this)
+    }
+
+    undo() {
+        this.receiver.deleteUser(this.user.userId)
+        this.history.remove(this)
+    }
+
+}
+
+class UserService {
+    saveUser(user: User) {
+        console.log(`Saving user with id ${user.userId}`)
+    }
+
+    deleteUser(userId: number) {
+        console.log(`Deleting user with id ${userId}`)
     }
 }
 
-class EventHandler extends Mediated {
-    myEvent() {
-        this.mediator.notify('EventHandler', 'myEvent')
+class Controller {
+    receiver: UserService
+    history: CommandHistory = new CommandHistory()
+
+    addReceiver(receiver: UserService) {
+        this.receiver = receiver
+    }
+
+    run() {
+        const addUserCommand = new AddUserCommand(new User(1), this.receiver, this.history)
+        addUserCommand.execute()
+        console.log(addUserCommand.history)
+        addUserCommand.undo()
+        console.log(addUserCommand.history)
     }
 }
 
-class NotificationsMediator implements IMediator {
-
-    constructor(public notifier: Notifications, public logger: Log, public handler: EventHandler) {}
-
-    notify(_: string, event: string) {
-        switch (event) {
-            case 'myEvent':
-                this.notifier.send()
-                this.logger.log('Message send!')
-                break
-        }
-    }
-}
-
-const logger = new Log()
-const handler = new EventHandler()
-const notifier = new Notifications()
-
-const m = new NotificationsMediator(notifier, logger, handler)
-
-handler.setMediator(m)
-handler.myEvent()
+const controller = new Controller()
+controller.addReceiver(new UserService())
+controller.run()
