@@ -1,56 +1,58 @@
-abstract class DeliveryItem {
-    items: DeliveryItem[] = []
+interface IMiddleware {
+    next(mid: IMiddleware): IMiddleware
 
-    addItem(item: DeliveryItem) {
-        this.items.push(item)
-    }
-
-    abstract getPrice(): number
-
-    getPrices() {
-        return this.items.reduce((previousValue, currentValue) => previousValue += currentValue.getPrice(), 0)
-    }
-
+    handle(request: any): any
 }
 
-class DeliveryShop extends DeliveryItem {
+abstract class AbstractMiddleware implements IMiddleware {
+    private nextMiddleware: IMiddleware
 
-    constructor(private deliveryFee: number) {
-        super()
+    handle(request: any): any {
+        if (this.nextMiddleware) {
+            return this.nextMiddleware.handle(request)
+        }
+        return
     }
 
-    getPrice(): number {
-        return this.getPrices() + this.deliveryFee
+    next(mid: IMiddleware): IMiddleware {
+        this.nextMiddleware = mid
+        return mid
     }
 }
 
-class Package extends DeliveryItem {
+class AuthMiddleware extends AbstractMiddleware {
 
-    getPrice(): number {
-        return this.getPrices()
-    }
-
-}
-
-class Product extends DeliveryItem {
-
-    constructor(protected price: number) {
-        super()
-    }
-
-    getPrice(): number {
-        return this.price
+    override handle(request: any): any {
+        console.log('AuthMiddleware')
+        if (request.userId === 1) {
+            return super.handle(request)
+        }
+        return {error: 'Not authorized!'}
     }
 }
 
-const shop = new DeliveryShop(100)
-shop.addItem(new Product(20))
-const pack1 = new Package()
-pack1.addItem(new Product(15))
-shop.addItem(pack1)
-const product1 = new Product(200)
-pack1.addItem(product1)
-const pack2 = new Package()
-pack1.addItem(new Product(400))
-shop.addItem(pack2)
-console.log(shop.getPrice())
+
+class ValidateMiddleware extends AbstractMiddleware {
+    override handle(request: any): any {
+        console.log('ValidateMiddleware')
+        if (request.body) {
+            return super.handle(request)
+        }
+        return {error: 'No request body!'}
+    }
+}
+
+class Controller extends AbstractMiddleware {
+    override handle(request: any): any {
+        console.log('Controller')
+        return {success: request}
+    }
+}
+
+const controller = new Controller()
+const auth = new AuthMiddleware()
+const validate = new ValidateMiddleware()
+
+auth.next(validate).next(controller)
+
+console.log(auth.handle({userId: 1, body: 'OK!'}))
