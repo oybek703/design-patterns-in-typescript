@@ -1,49 +1,94 @@
-class User {
-    githubToken: string
-    jwtToken: string
-}
-
-interface AuthStrategy {
-    auth(user: User): boolean
-}
-
-class Auth {
-    constructor(private strategy: AuthStrategy) {}
-
-    authUser(user: User): boolean {
-        return this.strategy.auth(user)
-    }
-
-    setStrategy(strategy: AuthStrategy) {
-        this.strategy = strategy
+class Task {
+    constructor(public priority: number) {
     }
 }
 
-class JWTStrategy implements AuthStrategy{
+class TaskList {
+    private tasks: Task[] = []
 
-    hasJWTToken(token: string): token is string {
-        return token !== undefined
+    sortByPriority() {
+        this.tasks = this.tasks.sort((a, b) => {
+                if (a.priority > b.priority) {
+                    return 1
+                } else if (a.priority === b.priority) {
+                    return 0
+                } else {
+                    return -1
+                }
+            }
+        )
     }
 
-    auth(user: User): boolean {
-        return this.hasJWTToken(user.jwtToken)
+    addTask(task: Task) {
+        this.tasks.push(task)
     }
+
+    getTasks() {
+        return this.tasks
+    }
+
+    count() {
+        return this.tasks.length
+    }
+
 }
 
-class GithubStrategy implements AuthStrategy{
 
-    hasGithubToken(token: string): token is string {
-        return token !== undefined
-    }
+interface IIterator<T> {
+    current(): T | undefined
 
-    auth(user: User): boolean {
-        return this.hasGithubToken(user.githubToken)
-    }
+    next(): T | undefined
+
+    prev(): T | undefined
+
+    index(): number
 }
 
-const user = new User()
-const auth = new Auth(new JWTStrategy())
-console.log(auth.authUser(user))
-user.githubToken = 'githubToken'
-auth.setStrategy(new GithubStrategy())
-console.log(auth.authUser(user))
+
+class PriorityTaskIterator implements IIterator<Task> {
+
+    private position: number = 0
+    private readonly taskList: TaskList
+
+    constructor(taskList: TaskList) {
+        this.taskList = taskList
+        this.taskList.sortByPriority()
+    }
+
+    current(): Task | undefined {
+        return this.taskList.getTasks()[this.position]
+    }
+
+    next(): Task | undefined {
+        this.position += 1
+        return this.current()
+    }
+
+    prev(): Task | undefined {
+        this.position -= 1
+        return this.current()
+    }
+
+    index(): number {
+        return this.position
+    }
+
+    getIterator() {
+        return new PriorityTaskIterator(this.taskList)
+    }
+
+
+}
+
+const taskList = new TaskList()
+taskList.addTask(new Task(2))
+taskList.addTask(new Task(4))
+taskList.addTask(new Task(3))
+taskList.addTask(new Task(6))
+const iterator = new PriorityTaskIterator(taskList)
+iterator.getIterator()
+console.log(iterator.current())
+console.log(iterator.next())
+console.log(iterator.next())
+console.log(iterator.next())
+console.log(iterator.index())
