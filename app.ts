@@ -1,94 +1,69 @@
-class Task {
-    constructor(public priority: number) {
+interface Observer {
+    update(subject: Subject): void
+}
+
+interface Subject {
+    attach(observer: Observer): void
+
+    detach(observer: Observer): void
+
+    notify(): void
+}
+
+class Lead {
+    constructor(public name: string, public phone: string) {
     }
 }
 
-class TaskList {
-    private tasks: Task[] = []
+class NewLead implements Subject {
+    private observers: Observer[] = []
+    state: Lead
 
-    sortByPriority() {
-        this.tasks = this.tasks.sort((a, b) => {
-                if (a.priority > b.priority) {
-                    return 1
-                } else if (a.priority === b.priority) {
-                    return 0
-                } else {
-                    return -1
-                }
-            }
-        )
+    attach(observer: Observer) {
+        if (!this.observers.includes(observer)) {
+            this.observers.push(observer)
+        }
     }
 
-    addTask(task: Task) {
-        this.tasks.push(task)
+    detach(observer: Observer) {
+        const observerIndex = this.observers.indexOf(observer)
+        if (observerIndex !== -1) {
+            this.observers.splice(observerIndex, 1)
+        }
     }
 
-    getTasks() {
-        return this.tasks
+    notify() {
+        for (const observer of this.observers) {
+            observer.update(this)
+        }
     }
+}
 
-    count() {
-        return this.tasks.length
+class NotificationService implements Observer{
+    update(subject: Subject) {
+        console.log('NotificationService accepted notification!')
+        console.log(subject)
     }
-
 }
 
 
-interface IIterator<T> {
-    current(): T | undefined
-
-    next(): T | undefined
-
-    prev(): T | undefined
-
-    index(): number
+class LeadService implements Observer{
+    update(subject: Subject) {
+        console.log('LeadService accepted notification!')
+        console.log(subject)
+    }
 }
 
 
-class PriorityTaskIterator implements IIterator<Task> {
+const subject = new NewLead()
+subject.state = new Lead('John', '123456')
 
-    private position: number = 0
-    private readonly taskList: TaskList
+const s1 = new NotificationService()
+const s2 = new LeadService()
 
-    constructor(taskList: TaskList) {
-        this.taskList = taskList
-        this.taskList.sortByPriority()
-    }
+subject.attach(s1)
+subject.attach(s2)
+subject.notify()
+subject.detach(s1)
+subject.notify()
 
-    current(): Task | undefined {
-        return this.taskList.getTasks()[this.position]
-    }
-
-    next(): Task | undefined {
-        this.position += 1
-        return this.current()
-    }
-
-    prev(): Task | undefined {
-        this.position -= 1
-        return this.current()
-    }
-
-    index(): number {
-        return this.position
-    }
-
-    getIterator() {
-        return new PriorityTaskIterator(this.taskList)
-    }
-
-
-}
-
-const taskList = new TaskList()
-taskList.addTask(new Task(2))
-taskList.addTask(new Task(4))
-taskList.addTask(new Task(3))
-taskList.addTask(new Task(6))
-const iterator = new PriorityTaskIterator(taskList)
-iterator.getIterator()
-console.log(iterator.current())
-console.log(iterator.next())
-console.log(iterator.next())
-console.log(iterator.next())
-console.log(iterator.index())
