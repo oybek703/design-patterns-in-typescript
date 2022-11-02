@@ -1,48 +1,30 @@
-class Notify {
-    send(template: string, to: string) {
-        console.log(`Send ${template}: ${to}`)
+class KVDatabase {
+    db: Map<string, string> = new Map<string, string>()
+
+    save(key: string, value: string) {
+        this.db.set(key, value)
     }
 }
 
-class Log {
-    log(message: string) {
-        console.log(message)
+class PersistentDB {
+    savePersistent(data: Object) {
+        console.log(data)
     }
 }
 
-class Template {
-    private templates = [
-        {name: 'other', template: '<h1>Some template</h1>'}
-    ]
+class PersistentDatabaseAdapter extends KVDatabase {
 
-    getByName(templateName: string) {
-        return this.templates.find(({name}) => name == templateName)
+    constructor(private database: PersistentDB) {
+        super()
+    }
+
+    override save(key: string, value: string) {
+        this.database.savePersistent({key, value})
     }
 }
 
-class NotificationFacade {
-    private notifier: Notify
-    private logger: Log
-    private template: Template
-
-    constructor() {
-        this.notifier = new Notify()
-        this.logger = new Log()
-        this.template = new Template()
-    }
-
-    send(templateName: string, to: string) {
-        const template = this.template.getByName(templateName)
-        if (template) {
-            this.notifier.send(template.template, to)
-            this.logger.log('Template send.')
-        } else {
-            this.logger.log('Template name not found!')
-        }
-    }
-
+function run(base: KVDatabase) {
+    base.save('key1', 'value1')
 }
 
-
-const s = new NotificationFacade()
-s.send('other', 'John')
+run(new PersistentDatabaseAdapter(new PersistentDB()))
