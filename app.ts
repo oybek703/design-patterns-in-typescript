@@ -1,75 +1,81 @@
-class User {
-    constructor(public userId: number) {
+class DocumentItem {
+    text: string
+    state: DocumentItemState
+
+    constructor() {
+        this.setState(new DraftDocumentItemState())
+    }
+
+    getState() {
+        return this.state
+    }
+
+    setState(state: DocumentItemState) {
+        this.state = state
+        state.setContext(this)
+    }
+
+    publishDoc() {
+        this.state.publish()
+    }
+
+    deleteDoc() {
+        this.state.delete()
     }
 }
 
-class CommandHistory {
-    public commands: Command[] = []
+abstract class DocumentItemState {
+    name: string
+    item: DocumentItem
 
-    push(command: Command) {
-        this.commands.push(command)
+    setContext(item: DocumentItem) {
+        this.item = item
     }
 
-    remove(command: Command) {
-        this.commands = this.commands.filter(({commandId}) => commandId !== command.commandId)
-    }
+    abstract publish(): void
+    abstract delete(): void
 }
 
-abstract class Command {
-    public commandId: number
-
-    abstract execute(): void
-
-    protected constructor(public history: CommandHistory) {
-        this.commandId = Math.random()
+class DraftDocumentItemState extends DocumentItemState {
+    constructor() {
+        super()
+        this.name = 'DraftDocumentItem'
     }
 
-}
-
-class AddUserCommand extends Command {
-    constructor(private user: User, private receiver: UserService, history: CommandHistory) {
-        super(history)
+    publish() {
+        console.log(`${this.item.text} sent to website!`)
+        this.item.setState(new PublishDocumentItemState())
     }
 
-    execute() {
-        this.receiver.saveUser(this.user)
-        this.history.push(this)
-    }
-
-    undo() {
-        this.receiver.deleteUser(this.user.userId)
-        this.history.remove(this)
+    delete() {
+        console.log('Document deleted!')
     }
 
 }
 
-class UserService {
-    saveUser(user: User) {
-        console.log(`Saving user with id ${user.userId}`)
+class PublishDocumentItemState extends DocumentItemState {
+    constructor() {
+        super()
+        this.name = 'PublishDocumentItem'
     }
 
-    deleteUser(userId: number) {
-        console.log(`Deleting user with id ${userId}`)
+    publish() {
+        console.log('Document is already published!')
+        this.item.setState(new DraftDocumentItemState())
     }
+
+    delete() {
+        console.log('Publish deleted!')
+        this.item.setState(new DraftDocumentItemState())
+    }
+
 }
 
-class Controller {
-    receiver: UserService
-    history: CommandHistory = new CommandHistory()
-
-    addReceiver(receiver: UserService) {
-        this.receiver = receiver
-    }
-
-    run() {
-        const addUserCommand = new AddUserCommand(new User(1), this.receiver, this.history)
-        addUserCommand.execute()
-        console.log(addUserCommand.history)
-        addUserCommand.undo()
-        console.log(addUserCommand.history)
-    }
-}
-
-const controller = new Controller()
-controller.addReceiver(new UserService())
-controller.run()
+const item = new DocumentItem()
+item.text = 'test001'
+console.log(item.getState())
+item.publishDoc()
+console.log(item.getState())
+item.publishDoc()
+item.deleteDoc()
+console.log(item.getState())
