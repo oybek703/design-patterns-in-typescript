@@ -1,54 +1,48 @@
-interface IProvider {
-    connect(config: string): void
-
-    send(message: string): void
-
-    disconnect(): void
+class Notify {
+    send(template: string, to: string) {
+        console.log(`Send ${template}: ${to}`)
+    }
 }
 
-class TelegramProvider implements IProvider {
-    connect(config: string) {
-        console.log(config)
-    }
-
-    send(message: string) {
+class Log {
+    log(message: string) {
         console.log(message)
     }
-
-    disconnect() {
-        console.log('Disconnect Telegram!')
-    }
 }
-class WhatsUpProvider implements IProvider {
-    connect(config: string) {
-        console.log(config)
-    }
 
-    send(message: string) {
-        console.log(message)
-    }
+class Template {
+    private templates = [
+        {name: 'other', template: '<h1>Some template</h1>'}
+    ]
 
-    disconnect() {
-        console.log('Disconnect WhatsUp!')
+    getByName(templateName: string) {
+        return this.templates.find(({name}) => name == templateName)
     }
 }
 
-class NotificationSender {
-    constructor(private provider: IProvider) {
+class NotificationFacade {
+    private notifier: Notify
+    private logger: Log
+    private template: Template
+
+    constructor() {
+        this.notifier = new Notify()
+        this.logger = new Log()
+        this.template = new Template()
     }
 
-    sendMessage(message: string) {
-        this.provider.connect('some config')
-        this.provider.send(message)
-        this.provider.disconnect()
+    send(templateName: string, to: string) {
+        const template = this.template.getByName(templateName)
+        if (template) {
+            this.notifier.send(template.template, to)
+            this.logger.log('Template send.')
+        } else {
+            this.logger.log('Template name not found!')
+        }
     }
+
 }
 
-class DelayedNotificationSender extends NotificationSender{
-    constructor(provider: IProvider) {
-        super(provider)
-    }
-}
 
-const sender = new NotificationSender(new TelegramProvider())
-sender.sendMessage('message from Telegram!')
+const s = new NotificationFacade()
+s.send('other', 'John')
