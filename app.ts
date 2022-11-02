@@ -1,81 +1,49 @@
-class DocumentItem {
-    text: string
-    state: DocumentItemState
+class User {
+    githubToken: string
+    jwtToken: string
+}
 
-    constructor() {
-        this.setState(new DraftDocumentItemState())
+interface AuthStrategy {
+    auth(user: User): boolean
+}
+
+class Auth {
+    constructor(private strategy: AuthStrategy) {}
+
+    authUser(user: User): boolean {
+        return this.strategy.auth(user)
     }
 
-    getState() {
-        return this.state
-    }
-
-    setState(state: DocumentItemState) {
-        this.state = state
-        state.setContext(this)
-    }
-
-    publishDoc() {
-        this.state.publish()
-    }
-
-    deleteDoc() {
-        this.state.delete()
+    setStrategy(strategy: AuthStrategy) {
+        this.strategy = strategy
     }
 }
 
-abstract class DocumentItemState {
-    name: string
-    item: DocumentItem
+class JWTStrategy implements AuthStrategy{
 
-    setContext(item: DocumentItem) {
-        this.item = item
+    hasJWTToken(token: string): token is string {
+        return token !== undefined
     }
 
-    abstract publish(): void
-    abstract delete(): void
+    auth(user: User): boolean {
+        return this.hasJWTToken(user.jwtToken)
+    }
 }
 
-class DraftDocumentItemState extends DocumentItemState {
-    constructor() {
-        super()
-        this.name = 'DraftDocumentItem'
+class GithubStrategy implements AuthStrategy{
+
+    hasGithubToken(token: string): token is string {
+        return token !== undefined
     }
 
-    publish() {
-        console.log(`${this.item.text} sent to website!`)
-        this.item.setState(new PublishDocumentItemState())
+    auth(user: User): boolean {
+        return this.hasGithubToken(user.githubToken)
     }
-
-    delete() {
-        console.log('Document deleted!')
-    }
-
 }
 
-class PublishDocumentItemState extends DocumentItemState {
-    constructor() {
-        super()
-        this.name = 'PublishDocumentItem'
-    }
-
-    publish() {
-        console.log('Document is already published!')
-        this.item.setState(new DraftDocumentItemState())
-    }
-
-    delete() {
-        console.log('Publish deleted!')
-        this.item.setState(new DraftDocumentItemState())
-    }
-
-}
-
-const item = new DocumentItem()
-item.text = 'test001'
-console.log(item.getState())
-item.publishDoc()
-console.log(item.getState())
-item.publishDoc()
-item.deleteDoc()
-console.log(item.getState())
+const user = new User()
+const auth = new Auth(new JWTStrategy())
+console.log(auth.authUser(user))
+user.githubToken = 'githubToken'
+auth.setStrategy(new GithubStrategy())
+console.log(auth.authUser(user))
