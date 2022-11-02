@@ -1,38 +1,56 @@
-interface PaymentDetails {
-    id: number
-    sum: number
+abstract class DeliveryItem {
+    items: DeliveryItem[] = []
+
+    addItem(item: DeliveryItem) {
+        this.items.push(item)
+    }
+
+    abstract getPrice(): number
+
+    getPrices() {
+        return this.items.reduce((previousValue, currentValue) => previousValue += currentValue.getPrice(), 0)
+    }
+
 }
 
-interface IPaymentAPI {
-    getPaymentDetails(id: number): PaymentDetails | undefined
-}
+class DeliveryShop extends DeliveryItem {
 
-class PaymentAPI implements IPaymentAPI {
+    constructor(private deliveryFee: number) {
+        super()
+    }
 
-    private payments: PaymentDetails[] = [{id: 1, sum: 10000}]
-
-    getPaymentDetails(paymentId: number): PaymentDetails | undefined {
-        return this.payments.find(({id}) => paymentId)
+    getPrice(): number {
+        return this.getPrices() + this.deliveryFee
     }
 }
 
-class PaymentAPIProxy implements IPaymentAPI {
+class Package extends DeliveryItem {
 
-    constructor(private api: PaymentAPI, private userId: number) {
-
+    getPrice(): number {
+        return this.getPrices()
     }
 
-    getPaymentDetails(paymentId: number): PaymentDetails | undefined {
-        if (this.userId === 1) {
-            return this.api.getPaymentDetails(paymentId)
-        }
-        console.log('Trying to get payment details!')
+}
+
+class Product extends DeliveryItem {
+
+    constructor(protected price: number) {
+        super()
+    }
+
+    getPrice(): number {
+        return this.price
     }
 }
 
-const proxy1 = new PaymentAPIProxy(new PaymentAPI(), 1)
-console.log(proxy1.getPaymentDetails(1))
-
-
-const proxy2 = new PaymentAPIProxy(new PaymentAPI(), 2)
-console.log(proxy2.getPaymentDetails(1))
+const shop = new DeliveryShop(100)
+shop.addItem(new Product(20))
+const pack1 = new Package()
+pack1.addItem(new Product(15))
+shop.addItem(pack1)
+const product1 = new Product(200)
+pack1.addItem(product1)
+const pack2 = new Package()
+pack1.addItem(new Product(400))
+shop.addItem(pack2)
+console.log(shop.getPrice())
