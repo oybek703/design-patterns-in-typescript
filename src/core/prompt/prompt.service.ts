@@ -1,5 +1,5 @@
 import inquirer from 'inquirer'
-import {PromptTypes} from './prompt.types'
+import {PromptTypes} from '@core/prompt/prompt.types'
 
 export class PromptService {
     async input<T>(message: string, type: PromptTypes) {

@@ -1,5 +1,5 @@
 import {ChildProcessWithoutNullStreams} from 'child_process'
-import {IStreamLogger} from './streamLogger.interface'
+import {IStreamLogger} from '@core/handlers/streamLogger.interface'
 
 
 export class StreamHandler {

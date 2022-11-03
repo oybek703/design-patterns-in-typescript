@@ -1,4 +1,4 @@
-import {IStreamLogger} from '../../core/handlers/streamLogger.interface'
+import {IStreamLogger} from '@core/handlers/streamLogger.interface'
 
 export class ConsoleLogger implements IStreamLogger {
     private static instance: ConsoleLogger
