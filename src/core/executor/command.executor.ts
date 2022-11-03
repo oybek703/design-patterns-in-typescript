@@ -1,6 +1,6 @@
-import { IStreamLogger } from '@core/handlers/streamLogger.interface'
 import {ChildProcessWithoutNullStreams} from 'child_process'
-import {ICommandExec} from '@core/executor/command.types'
+import {ICommandExec} from './command.types'
+import {IStreamLogger} from '../handlers/streamLogger.interface'
 
 export abstract class CommandExecutor<Input> {
 

@@ -1,11 +1,11 @@
-import {CommandExecutor} from '@core/executor/command.executor'
-import {IFfmpegCommandExec, IFfmpegInput} from '@commands/ffmpeg/ffmpeg.interface'
-import {IStreamLogger} from '@core/handlers/streamLogger.interface'
 import {ChildProcessWithoutNullStreams, spawn} from 'child_process'
-import {FileService} from '@core/files/file.service'
-import {PromptService} from '@core/prompt/prompt.service'
-import {FfmpegBuilder} from '@commands/ffmpeg/ffmpeg.builder'
-import {StreamHandler} from '@core/handlers/stream.handler'
+import {FileService} from '../../core/files/file.service'
+import {PromptService} from '../../core/prompt/prompt.service'
+import {FfmpegBuilder} from './ffmpeg.builder'
+import {StreamHandler} from '../../core/handlers/stream.handler'
+import {IFfmpegCommandExec, IFfmpegInput} from './ffmpeg.interface'
+import {CommandExecutor} from '../../core/executor/command.executor'
+import {IStreamLogger} from '../../core/handlers/streamLogger.interface'
 
 export class FfmpegExecutor extends CommandExecutor<IFfmpegInput> {
     private fileService: FileService = new FileService()

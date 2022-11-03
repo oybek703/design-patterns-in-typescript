@@ -15,7 +15,7 @@ export class FileService {
         if (isAbsolute(path)) {
             path = join(`${__dirname}/${path}`)
         }
-        return join(`${dirname(path)}/${filename}${ext}`)
+        return join(`${dirname(path)}/${filename}.${ext}`)
     }
 
     async deleteFileIfExists(path: string) {
